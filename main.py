@@ -22,7 +22,7 @@ from PIL import ImageEnhance
 from requests import session, post, adapters
 
 adapters.DEFAULT_RETRIES = 5
-
+PUSH_KEY = os.getenv("PUSH_KEY")
 
 def notify(_title, _message=None):
     if not PUSH_KEY:
