@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Time    : 2021/10/28 11:07
-# @Author  : 刘佳兴
-# @Mail    : 1260968291@qq.com
-# @FileName: T.py
 
 import json
 import time
@@ -13,18 +8,19 @@ from sys import exit as sys_exit
 from getpass import getpass
 import re
 import base64
-import easyocr
 import io
 import numpy
 from PIL import Image
 from PIL import ImageEnhance
-
+import easyocr
 from requests import session, post, adapters
 
 adapters.DEFAULT_RETRIES = 5
-PUSH_KEY = os.getenv("PUSH_KEY")
+
 
 def notify(_title, _message=None):
+    PUSH_KEY = getenv("PUSH_KEY")
+    print(PUSH_KEY)
     if not PUSH_KEY:
         print("未配置PUSH_KEY！")
         return
@@ -35,7 +31,7 @@ def notify(_title, _message=None):
     print(_title)
     print(_message)
 
-    _response = requests.post(f"https://sc.ftqq.com/{PUSH_KEY}.send", {"text": _title, "desp": _message})
+    _response = post(f"https://sc.ftqq.com/{PUSH_KEY}.send", {"text": _title, "desp": _message})
 
     if _response.status_code == 200:
         print(f"发送通知状态：{_response.content.decode('utf-8')}")
@@ -85,6 +81,7 @@ class Fudan:
             return page_login.text
         else:
             print("◉Fail to open Login Page, Check your Internet connection\n")
+            notify("登录页面加载失败", "◉Fail to open Login Page, Check your Internet connection\n")
             self.close()
 
     def login(self):
@@ -132,6 +129,7 @@ class Fudan:
                   "\n***********************\n")
         else:
             print("◉登录失败，请检查账号信息")
+            notify("登录失败，请检查账号信息")
             self.close()
 
     def logout(self):
@@ -186,7 +184,6 @@ class Zlapp(Fudan):
         print("◉今日日期为:", today)
         if last_info["d"]["info"]["date"] == today:
             print("\n*******今日已提交*******")
-            self.close()
             return 1, position['formattedAddress'], str(last_info["d"]["info"])
         else:
             print("\n\n*******未提交*******")
@@ -265,7 +262,7 @@ class Zlapp(Fudan):
             if (json_loads(save.text)["e"] != 1):
                 return count, str(self.last_info)
         else:
-            return count, ""
+            return -1, ""
 
 
 def get_account():
@@ -303,7 +300,6 @@ def get_account():
 
 if __name__ == '__main__':
     uid, psw = get_account()
-    # print(uid, psw)
     zlapp_login = 'https://uis.fudan.edu.cn/authserver/login?' \
                   'service=https://zlapp.fudan.edu.cn/site/ncov/fudanDaily'
     code_url = "https://zlapp.fudan.edu.cn/backend/default/code"
@@ -312,11 +308,14 @@ if __name__ == '__main__':
     daily_fudan.login()
     submit, address, des = daily_fudan.check()
     if submit:
-        notify("今日已打卡，地址：{}".format(address), des)
+        print("\n\n◉◉推送:"+"今日已提交，地址：{}".format(address))
+        notify("今日已提交，地址：{}".format(address), des)
     else:
         count, des = daily_fudan.checkin()
         if count >= 0:
-            notify("打卡成功，地址：{}，识别次数：{}".format(address, count), des)
+            notify("提交成功，地址：{}，识别次数：{}".format(address, count), des)
+            print("\n\n◉◉推送:"+"提交成功，地址：{}，识别次数：{}".format(address, count))
         else:
-            notify("打卡失败，识别次数：{}".format(count), des)
+            notify("提交失败，识别次数：{}".format(100), des)
+            print("\n\n◉◉推送:"+"提交失败，识别次数：{}".format(100))
         daily_fudan.close(1)
