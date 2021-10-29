@@ -1,4 +1,3 @@
-
 import json
 import time
 import os
@@ -81,7 +80,6 @@ class Fudan:
             return page_login.text
         else:
             print("◉Fail to open Login Page, Check your Internet connection\n")
-            notify("登录页面加载失败", "◉Fail to open Login Page, Check your Internet connection\n")
             self.close()
 
     def login(self):
@@ -129,7 +127,6 @@ class Fudan:
                   "\n***********************\n")
         else:
             print("◉登录失败，请检查账号信息")
-            notify("登录失败，请检查账号信息")
             self.close()
 
     def logout(self):
@@ -232,7 +229,7 @@ class Zlapp(Fudan):
         city = self.last_info["city"]
         district = geo_api_info["addressComponent"].get("district", "")
         count = 0
-        while (count < 100):
+        while (count < 10):
             print("◉正在识别验证码......")
             code = self.validate_code()
             print("◉验证码为:", code)
@@ -248,7 +245,6 @@ class Zlapp(Fudan):
 
                 }
             )
-            # print(self.last_info)
             save = self.session.post(
                 'https://zlapp.fudan.edu.cn/ncov/wap/fudan/save',
                 data=self.last_info,
@@ -308,14 +304,13 @@ if __name__ == '__main__':
     daily_fudan.login()
     submit, address, des = daily_fudan.check()
     if submit:
-        print("\n\n◉◉推送:"+"今日已提交，地址：{}".format(address))
+        print("\n\n◉◉推送")
         notify("今日已提交，地址：{}".format(address), des)
     else:
+        print("\n\n◉◉推送")
         count, des = daily_fudan.checkin()
         if count >= 0:
-            notify("提交成功，地址：{}，识别次数：{}".format(address, count), des)
-            print("\n\n◉◉推送:"+"提交成功，地址：{}，识别次数：{}".format(address, count))
+            notify("提交成功，识别次数：{}，地址：{}，".format(address, count), des)
         else:
-            notify("提交失败，识别次数：{}".format(100), des)
-            print("\n\n◉◉推送:"+"提交失败，识别次数：{}".format(100))
-        daily_fudan.close(1)
+            notify("提交失败，识别次数：{}".format(10), des)
+    daily_fudan.close()
