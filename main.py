@@ -237,6 +237,7 @@ class Zlapp(Fudan):
             self.last_info.update(
                 {
                     "tw": "13",
+                    "ip": "101.94.135.10",
                     "province": province,
                     "city": city,
                     "area": " ".join((province, city, district)),
@@ -296,6 +297,9 @@ def get_account():
 
 
 if __name__ == '__main__':
+    import time
+    import random
+    time.sleep(random.randint(1, 600))
     uid, psw = get_account()
     zlapp_login = 'https://uis.fudan.edu.cn/authserver/login?' \
                   'service=https://zlapp.fudan.edu.cn/site/ncov/fudanDaily'
